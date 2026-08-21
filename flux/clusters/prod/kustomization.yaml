@@ -1,12 +1,8 @@
+# This is the entry-point kustomization.yaml for the flux/clusters/prod path.
+# It references the flux-system bootstrap files only.
+# All infra components are applied as separate Flux Kustomization CRs
+# (see gotk-sync.yaml and the individual infra kustomization.yaml files).
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - flux-system/
-  - ../../infra/metallb/
-  - ../../infra/ingress/traefik/
-  - ../../infra/ingress/nginx/
-  - ../../infra/cert-manager/
-  - ../../infra/storage/longhorn/
-  - ../../infra/storage/openebs/
-  - ../../infra/keda/
-  - ../../infra/observability/
+  - flux-system/gotk-sync.yaml

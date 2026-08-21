@@ -6,7 +6,7 @@ metadata:
 spec:
   project: ai-data
   source:
-    repoURL: ${GITHUB_REPO}
+    repoURL: https://github.com/TaheerBinHussain/week-4_AI-Platform.git
     targetRevision: HEAD
     path: argocd/apps/ai-data/qdrant
   destination:
