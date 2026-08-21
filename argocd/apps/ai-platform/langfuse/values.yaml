@@ -1,0 +1,34 @@
+langfuse:
+  nextauth:
+    secret:
+      secretName: langfuse-credentials
+      secretKey: secretKey
+  salt:
+    secretName: langfuse-credentials
+    secretKey: salt
+database:
+  enabled: false
+  external:
+    host: postgres-postgresql.ai-data.svc.cluster.local
+    user:
+      secretName: postgres-credentials
+      secretKey: username
+    password:
+      secretName: postgres-credentials
+      secretKey: password
+    name: langfuse
+replicaCount: 1
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+securityContext:
+  runAsNonRoot: true
+env:
+  - name: OTEL_EXPORTER_OTLP_ENDPOINT
+    value: "http://otel-collector.observability.svc.cluster.local:4318"
+ingress:
+  enabled: false

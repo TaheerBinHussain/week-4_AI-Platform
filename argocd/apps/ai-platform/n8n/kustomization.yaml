@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+helmCharts:
+  - name: n8n
+    repo: https://8gears.container-registry.com/chartrepo/library
+    version: 0.25.2
+    releaseName: n8n
+    namespace: ai-platform
+    valuesFile: values.yaml
+resources:
+  - ingressroute-traefik.yaml
+  - scaledobject.yaml

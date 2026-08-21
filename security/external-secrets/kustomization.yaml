@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - helmrepository.yaml
+  - helmrelease.yaml
+  - cluster-secret-store.yaml
+  - postgres-credentials.yaml
+  - redis-credentials.yaml
+  - minio-credentials.yaml
+  - qdrant-credentials.yaml
+  - n8n-credentials.yaml
+  - langfuse-credentials.yaml
+  - flowise-credentials.yaml
+  - grafana-credentials.yaml

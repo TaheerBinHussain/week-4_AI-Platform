@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+helmCharts:
+  - name: flowise
+    repo: https://cowboysysop.github.io/charts/
+    version: 2.2.6
+    releaseName: flowise
+    namespace: ai-platform
+    valuesFile: values.yaml
+resources:
+  - ingress-nginx.yaml

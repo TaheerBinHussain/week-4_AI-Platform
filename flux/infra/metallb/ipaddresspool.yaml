@@ -1,0 +1,17 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: sovereign-pool
+  namespace: platform-infra
+spec:
+  addresses:
+    - 172.18.100.10-172.18.100.50
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: sovereign-l2
+  namespace: platform-infra
+spec:
+  ipAddressPools:
+    - sovereign-pool

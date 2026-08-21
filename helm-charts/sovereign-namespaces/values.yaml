@@ -1,0 +1,21 @@
+namespaces:
+  - name: ai-platform
+    labels:
+      app.kubernetes.io/part-of: sovereign-ai-platform
+      managed-by: argocd
+  - name: ai-data
+    labels:
+      app.kubernetes.io/part-of: sovereign-ai-platform
+      managed-by: argocd
+  - name: security
+    labels:
+      app.kubernetes.io/part-of: sovereign-ai-platform
+      managed-by: flux
+  - name: platform-infra
+    labels:
+      app.kubernetes.io/part-of: sovereign-ai-platform
+      managed-by: flux
+  - name: observability
+    labels:
+      app.kubernetes.io/part-of: sovereign-ai-platform
+      managed-by: flux

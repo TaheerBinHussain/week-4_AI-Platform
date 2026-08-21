@@ -1,0 +1,27 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: n8n-basic-auth
+  namespace: ai-platform
+spec:
+  basicAuth:
+    secret: n8n-credentials
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: n8n-ingressroute
+  namespace: ai-platform
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`n8n.sovereign.internal`)
+      kind: Rule
+      middlewares:
+        - name: n8n-basic-auth
+      services:
+        - name: n8n
+          port: 5678
+  tls:
+    secretName: n8n-tls

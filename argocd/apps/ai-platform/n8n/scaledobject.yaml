@@ -1,0 +1,30 @@
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: n8n-redis-auth
+  namespace: ai-platform
+spec:
+  secretTargetRef:
+    - parameter: password
+      name: redis-credentials
+      key: password
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: n8n-worker-scaler
+  namespace: ai-platform
+spec:
+  scaleTargetRef:
+    name: n8n-worker
+  minReplicaCount: 1
+  maxReplicaCount: 5
+  cooldownPeriod: 30
+  triggers:
+    - type: redis
+      metadata:
+        address: redis-master.ai-data.svc.cluster.local:6379
+        listName: bull:jobs:wait
+        listLength: '10'
+      authenticationRef:
+        name: n8n-redis-auth

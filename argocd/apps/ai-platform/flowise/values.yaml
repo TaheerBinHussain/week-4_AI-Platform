@@ -1,0 +1,44 @@
+replicaCount: 1
+persistence:
+  enabled: true
+  storageClass: longhorn-replicated
+  size: 5Gi
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+env:
+  - name: DATABASE_HOST
+    value: "postgres-postgresql.ai-data.svc.cluster.local"
+  - name: DATABASE_PORT
+    value: "5432"
+  - name: DATABASE_NAME
+    value: "flowise"
+  - name: QDRANT_URL
+    value: "http://qdrant.ai-data.svc.cluster.local:6333"
+  - name: OLLAMA_BASE_URL
+    value: "http://ollama.ai-platform.svc.cluster.local:11434"
+  - name: LANGFUSE_BASE_URL
+    value: "http://langfuse-web.ai-platform.svc.cluster.local:3000"
+  - name: OTEL_EXPORTER_OTLP_ENDPOINT
+    value: "http://otel-collector.observability.svc.cluster.local:4318"
+envFrom:
+  - secretRef:
+      name: flowise-credentials
+  - secretRef:
+      name: postgres-credentials
+probes:
+  liveness:
+    httpGet:
+      path: /api/v1/ping
+      port: 3000
+  readiness:
+    httpGet:
+      path: /api/v1/ping
+      port: 3000
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000

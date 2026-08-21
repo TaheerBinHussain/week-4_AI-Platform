@@ -1,0 +1,20 @@
+auth:
+  existingSecret: redis-credentials
+  existingSecretPasswordKey: password
+master:
+  persistence:
+    storageClass: openebs-local-nvme
+    size: 5Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+replica:
+  replicaCount: 0
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true

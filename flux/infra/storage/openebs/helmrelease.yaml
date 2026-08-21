@@ -1,0 +1,32 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: openebs
+  namespace: platform-infra
+spec:
+  interval: 1h
+  targetNamespace: openebs
+  chart:
+    spec:
+      chart: openebs
+      version: 4.1.1
+      sourceRef:
+        kind: HelmRepository
+        name: openebs
+      interval: 1h
+  values:
+    engines:
+      local:
+        lvm:
+          enabled: false
+        zfs:
+          enabled: false
+    localpv-provisioner:
+      enabled: true
+      hostpathClass:
+        enabled: true
+        isDefaultClass: false
+    mayastor:
+      enabled: false
+    ndm:
+      enabled: false

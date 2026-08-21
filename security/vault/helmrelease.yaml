@@ -1,0 +1,56 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: vault
+  namespace: security
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: vault
+      version: 0.28.1
+      sourceRef:
+        kind: HelmRepository
+        name: hashicorp
+        namespace: security
+  values:
+    global:
+      enabled: true
+    server:
+      standalone:
+        enabled: true
+        config: |
+          ui = true
+          listener "tcp" {
+            tls_disable = 1
+            address = "[::]:8200"
+            cluster_address = "[::]:8201"
+          }
+          storage "file" {
+            path = "/vault/data"
+          }
+          log_level = "info"
+      dataStorage:
+        enabled: true
+        storageClass: longhorn-replicated
+        size: 10Gi
+      resources:
+        requests:
+          cpu: 250m
+          memory: 256Mi
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+      readinessProbe:
+        enabled: true
+      livenessProbe:
+        enabled: true
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 100
+    ui:
+      enabled: true
+    injector:
+      enabled: false
+    csi:
+      enabled: false

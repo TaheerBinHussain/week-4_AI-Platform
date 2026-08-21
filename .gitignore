@@ -1,0 +1,36 @@
+# ─── Secrets (NEVER commit these) ───────────────────────────────────────────
+*.env
+.env.*
+secrets/
+*-secrets.yaml
+# Vault unseal output – save to 1Password, NOT here
+/tmp/vault-init-output.txt
+
+# ─── Editor artifacts ────────────────────────────────────────────────────────
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ─── Build artifacts ─────────────────────────────────────────────────────────
+dist/
+build/
+*.tgz
+
+# ─── Helm ────────────────────────────────────────────────────────────────────
+# Rendered chart output (only committed if intentional)
+helm-charts/*/charts/
+
+# ─── ArgoCD / Flux generated outputs ─────────────────────────────────────────
+# These are intentionally committed – no exclusions needed
+
+# ─── Local cluster credentials ───────────────────────────────────────────────
+kubeconfig
+*.kubeconfig
+
+# ─── CI runner cache ─────────────────────────────────────────────────────────
+.cache/
+__pycache__/
+*.pyc

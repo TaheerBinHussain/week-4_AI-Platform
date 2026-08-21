@@ -1,0 +1,13 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: openebs-local-nvme
+  annotations:
+    # WaitForFirstConsumer is required for node affinity in LocalPV
+    storageclass.kubernetes.io/is-default-class: "false"
+provisioner: openebs.io/local
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Delete
+parameters:
+  cas-type: local
+  openebs.io/cas-type: local

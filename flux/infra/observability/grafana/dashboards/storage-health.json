@@ -1,0 +1,37 @@
+{
+  "title": "Sovereign AI Platform - Storage Health",
+  "uid": "sovereign-storage-health",
+  "panels": [
+    {
+      "type": "table",
+      "title": "Longhorn volumes and their health state",
+      "targets": [{"expr": "longhorn_volume_state", "format": "table"}],
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+    },
+    {
+      "type": "timeseries",
+      "title": "Longhorn volume capacity vs used",
+      "targets": [{"expr": "longhorn_volume_capacity_bytes", "legendFormat": "Capacity"}, {"expr": "longhorn_volume_actual_size_bytes", "legendFormat": "Used"}],
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+    },
+    {
+      "type": "stat",
+      "title": "OpenEBS LocalPV volumes count",
+      "targets": [{"expr": "count(kube_persistentvolume_info{storageclass='openebs-local-nvme'})"}],
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 8}
+    },
+    {
+      "type": "timeseries",
+      "title": "MinIO bucket sizes",
+      "targets": [{"expr": "minio_bucket_usage_object_total", "legendFormat": "{{bucket}}"}],
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 8}
+    },
+    {
+      "type": "table",
+      "title": "Recent Longhorn backups",
+      "targets": [{"expr": "longhorn_backup_state", "format": "table"}],
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 8}
+    }
+  ],
+  "schemaVersion": 16
+}

@@ -1,0 +1,47 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: traefik
+  namespace: platform-infra
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: traefik
+      version: 30.1.0
+      sourceRef:
+        kind: HelmRepository
+        name: traefik
+      interval: 1h
+  values:
+    service:
+      type: LoadBalancer
+      loadBalancerIP: 172.18.100.10
+    additionalArguments:
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+    providers:
+      kubernetesIngress:
+        enabled: true
+      kubernetesCRD:
+        enabled: true
+    metrics:
+      prometheus:
+        enabled: true
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 65532
+    dashboard:
+      enabled: true
+    rbac:
+      enabled: true
+    globalArguments:
+      - "--global.checknewversion=false"
+      - "--global.sendanonymoususage=false"

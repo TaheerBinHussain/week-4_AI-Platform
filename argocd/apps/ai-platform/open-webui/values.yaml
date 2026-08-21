@@ -1,0 +1,39 @@
+replicaCount: 1
+image:
+  repository: ghcr.io/open-webui/open-webui
+  tag: main
+ollamaBaseUrl: "http://ollama.ai-platform.svc.cluster.local:11434"
+persistence:
+  enabled: true
+  storageClass: longhorn-replicated
+  size: 5Gi
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+service:
+  type: ClusterIP
+ingress:
+  enabled: false
+env:
+  - name: ENABLE_RAG_WEB_SEARCH
+    value: "false"
+  - name: OTEL_EXPORTER_OTLP_ENDPOINT
+    value: "http://otel-collector.observability.svc.cluster.local:4318"
+envFrom:
+  - secretRef:
+      name: open-webui-credentials
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8080
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 8080
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000

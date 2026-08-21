@@ -1,0 +1,58 @@
+{
+  "title": "Sovereign AI Platform - Platform Health",
+  "uid": "sovereign-platform-health",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total Running Pods",
+      "targets": [{"expr": "sum(kube_pod_status_phase{phase='Running'}) by (namespace)", "legendFormat": "{{namespace}}"}],
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 0}
+    },
+    {
+      "type": "timeseries",
+      "title": "Pod Restarts over time",
+      "targets": [{"expr": "sum(rate(kube_pod_container_status_restarts_total[5m])) by (namespace)", "legendFormat": "{{namespace}}"}],
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 0}
+    },
+    {
+      "type": "timeseries",
+      "title": "CPU Usage by namespace",
+      "targets": [{"expr": "sum(rate(container_cpu_usage_seconds_total{image!=''}[5m])) by (namespace)", "legendFormat": "{{namespace}}"}],
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 0}
+    },
+    {
+      "type": "timeseries",
+      "title": "Memory Usage by namespace",
+      "targets": [{"expr": "sum(container_memory_working_set_bytes{image!=''}) by (namespace)", "legendFormat": "{{namespace}}"}],
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+    },
+    {
+      "type": "stat",
+      "title": "PVC Usage % (Longhorn volumes)",
+      "targets": [{"expr": "kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes * 100", "legendFormat": "{{persistentvolumeclaim}}"}],
+      "gridPos": {"h": 8, "w": 6, "x": 12, "y": 8}
+    },
+    {
+      "type": "table",
+      "title": "Pod Status summary",
+      "targets": [{"expr": "sum(kube_pod_status_phase) by (phase, namespace)", "format": "table"}],
+      "gridPos": {"h": 8, "w": 6, "x": 18, "y": 8}
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "namespace",
+        "type": "query",
+        "datasource": "Prometheus",
+        "query": "label_values(kube_pod_info, namespace)",
+        "refresh": 1
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "schemaVersion": 16
+}

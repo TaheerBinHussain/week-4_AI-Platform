@@ -1,0 +1,35 @@
+replicaCount: 1
+ollama:
+  gpu:
+    enabled: false
+  models:
+    - llama3.2:1b
+    - phi3:mini
+persistence:
+  enabled: true
+  storageClass: longhorn-replicated
+  size: 20Gi
+resources:
+  requests:
+    cpu: 500m
+    memory: 2Gi
+  limits:
+    cpu: 4000m
+    memory: 8Gi
+service:
+  type: ClusterIP
+  port: 11434
+livenessProbe:
+  httpGet:
+    path: /api/version
+    port: 11434
+readinessProbe:
+  httpGet:
+    path: /api/tags
+    port: 11434
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+env:
+  - name: OLLAMA_KEEP_ALIVE
+    value: "-1"

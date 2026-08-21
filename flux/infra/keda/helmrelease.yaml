@@ -1,0 +1,38 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: keda
+  namespace: platform-infra
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: keda
+      version: 2.15.1
+      sourceRef:
+        kind: HelmRepository
+        name: kedacore
+      interval: 1h
+  values:
+    prometheus:
+      metricServer:
+        enabled: true
+      operator:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+    resources:
+      operator:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
+      metricServer:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi

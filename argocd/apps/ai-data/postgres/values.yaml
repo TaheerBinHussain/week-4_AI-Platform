@@ -1,0 +1,35 @@
+global:
+  postgresql:
+    auth:
+      existingSecret: postgres-credentials
+      secretKeys:
+        adminPasswordKey: password
+      username: postgres
+primary:
+  persistence:
+    storageClass: longhorn-replicated
+    size: 20Gi
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+  livenessProbe:
+    enabled: true
+  readinessProbe:
+    enabled: true
+  initdb:
+    scripts:
+      init.sql: |
+        CREATE DATABASE flowise;
+        CREATE DATABASE n8n;
+        CREATE DATABASE langfuse;
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1001

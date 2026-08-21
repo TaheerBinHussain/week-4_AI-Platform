@@ -1,0 +1,42 @@
+replicaCount: 1
+n8n:
+  encryption_key:
+    secretName: n8n-credentials
+    secretKey: encryptionKey
+database:
+  type: postgres
+  postgres:
+    host: postgres-postgresql.ai-data.svc.cluster.local:5432
+    database: n8n
+    userSecretName: postgres-credentials
+    passwordSecretName: postgres-credentials
+redis:
+  enabled: true
+  host: redis-master.ai-data.svc.cluster.local
+  passwordSecretName: redis-credentials
+queue:
+  bull:
+    redis:
+      host: redis-master.ai-data.svc.cluster.local
+executions:
+  mode: queue
+persistence:
+  enabled: true
+  storageClass: longhorn-replicated
+  size: 5Gi
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+env:
+  - name: WEBHOOK_URL
+    value: "https://n8n.sovereign.internal"
+worker:
+  enabled: true
+  replicaCount: 1

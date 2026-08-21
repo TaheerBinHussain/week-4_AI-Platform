@@ -1,0 +1,40 @@
+name: CI Lint
+on: [push, pull_request]
+jobs:
+  yamllint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run yamllint
+        run: |
+          pip install yamllint
+          yamllint **/*.yaml
+  helm-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+      - name: Run helm lint
+        run: helm lint helm-charts/sovereign-namespaces/
+  kustomize-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Kustomize
+        run: |
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          sudo mv kustomize /usr/local/bin/
+      - name: Build app overlays
+        run: |
+          for d in argocd/apps/*/*/; do
+            kustomize build "$d" > /dev/null
+          done
+  validate-flux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Flux
+        run: curl -s https://fluxcd.io/install.sh | sudo bash
+      - name: Run flux build
+        run: flux build kustomization infra --path . --dry-run

@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+dependsOn:
+  - name: longhorn
+    namespace: platform-infra
+  - name: openebs
+    namespace: platform-infra
+resources:
+  - helmrepository.yaml
+  - helmrelease.yaml

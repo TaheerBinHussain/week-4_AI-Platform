@@ -1,0 +1,23 @@
+# NOTE: MinIO is bootstrapped with longhorn-replicated StorageClass. Once running, Longhorn backup target is pointed at the longhorn-backups bucket.
+auth:
+  existingSecret: minio-credentials
+  secretKeys:
+    rootUserKey: rootUser
+    rootPasswordKey: rootPassword
+persistence:
+  storageClass: longhorn-replicated
+  size: 50Gi
+defaultBuckets: "documents,postgres-backups,longhorn-backups"
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+metrics:
+  serviceMonitor:
+    enabled: true
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000

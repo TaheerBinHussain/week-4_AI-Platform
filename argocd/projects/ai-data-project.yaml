@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: ai-data
+  namespace: argocd
+spec:
+  description: AI Data Apps
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: ai-data
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: networking.k8s.io
+      kind: NetworkPolicy
+    - group: ''
+      kind: Namespace
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'

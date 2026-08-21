@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: qdrant
+  namespace: argocd
+spec:
+  project: ai-data
+  source:
+    repoURL: ${GITHUB_REPO}
+    targetRevision: HEAD
+    path: argocd/apps/ai-data/qdrant
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ai-data
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,204 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: grafana
+  namespace: observability
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: grafana
+      version: 8.4.4
+      sourceRef:
+        kind: HelmRepository
+        name: grafana
+      interval: 1h
+  values:
+    adminUser: admin
+    adminPassword: "" # TODO: source from grafana-credentials secret
+    envFromSecret: grafana-credentials
+    persistence:
+      enabled: true
+      storageClassName: longhorn-replicated
+      size: 5Gi
+    datasources:
+      datasources.yaml:
+        apiVersion: 1
+        datasources:
+          - name: Prometheus
+            type: prometheus
+            url: http://kube-prometheus-stack-prometheus.observability.svc.cluster.local:9090
+            access: proxy
+            isDefault: true
+          - name: Loki
+            type: loki
+            url: http://loki.observability.svc.cluster.local:3100
+            access: proxy
+          - name: Tempo
+            type: tempo
+            url: http://tempo.observability.svc.cluster.local:3100
+            access: proxy
+    dashboardProviders:
+      dashboardproviders.yaml:
+        apiVersion: 1
+        providers:
+          - name: 'default'
+            orgId: 1
+            folder: ''
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/default
+    dashboards:
+      default:
+        platform-health:
+          json: |
+            {
+  "title": "Sovereign AI Platform - Platform Health",
+  "uid": "sovereign-platform-health",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total Running Pods",
+      "targets": [{"expr": "sum(kube_pod_status_phase{phase='Running'}) by (namespace)", "legendFormat": "{{namespace}}"}],
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 0}
+    },
+    {
+      "type": "timeseries",
+      "title": "Pod Restarts over time",
+      "targets": [{"expr": "sum(rate(kube_pod_container_status_restarts_total[5m])) by (namespace)", "legendFormat": "{{namespace}}"}],
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 0}
+    },
+    {
+      "type": "timeseries",
+      "title": "CPU Usage by namespace",
+      "targets": [{"expr": "sum(rate(container_cpu_usage_seconds_total{image!=''}[5m])) by (namespace)", "legendFormat": "{{namespace}}"}],
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 0}
+    },
+    {
+      "type": "timeseries",
+      "title": "Memory Usage by namespace",
+      "targets": [{"expr": "sum(container_memory_working_set_bytes{image!=''}) by (namespace)", "legendFormat": "{{namespace}}"}],
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+    },
+    {
+      "type": "stat",
+      "title": "PVC Usage % (Longhorn volumes)",
+      "targets": [{"expr": "kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes * 100", "legendFormat": "{{persistentvolumeclaim}}"}],
+      "gridPos": {"h": 8, "w": 6, "x": 12, "y": 8}
+    },
+    {
+      "type": "table",
+      "title": "Pod Status summary",
+      "targets": [{"expr": "sum(kube_pod_status_phase) by (phase, namespace)", "format": "table"}],
+      "gridPos": {"h": 8, "w": 6, "x": 18, "y": 8}
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "namespace",
+        "type": "query",
+        "datasource": "Prometheus",
+        "query": "label_values(kube_pod_info, namespace)",
+        "refresh": 1
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "schemaVersion": 16
+}
+        llm-usage:
+          json: |
+            {
+  "title": "Sovereign AI Platform - LLM Usage",
+  "uid": "sovereign-llm-usage",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Ollama request rate (req/min) by model",
+      "targets": [{"expr": "sum(rate(ollama_request_total[1m])) by (model)", "legendFormat": "{{model}}"}],
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+    },
+    {
+      "type": "timeseries",
+      "title": "Ollama response latency p50/p95",
+      "targets": [{"expr": "histogram_quantile(0.95, sum(rate(ollama_request_duration_seconds_bucket[5m])) by (le, model))", "legendFormat": "p95 {{model}}"}],
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+    },
+    {
+      "type": "stat",
+      "title": "Total LLM calls (last 24h)",
+      "targets": [{"expr": "sum(increase(ollama_request_total[24h]))"}],
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 8}
+    },
+    {
+      "type": "timeseries",
+      "title": "Ollama replica count (from KEDA scaling)",
+      "targets": [{"expr": "sum(kube_deployment_status_replicas{deployment='ollama'})", "legendFormat": "Replicas"}],
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 8}
+    },
+    {
+      "type": "timeseries",
+      "title": "Token usage estimate (from LangFuse metrics if available)",
+      "targets": [{"expr": "sum(rate(langfuse_token_usage_total[5m])) by (model)", "legendFormat": "{{model}}"}],
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 8}
+    }
+  ],
+  "schemaVersion": 16
+}
+        storage-health:
+          json: |
+            {
+  "title": "Sovereign AI Platform - Storage Health",
+  "uid": "sovereign-storage-health",
+  "panels": [
+    {
+      "type": "table",
+      "title": "Longhorn volumes and their health state",
+      "targets": [{"expr": "longhorn_volume_state", "format": "table"}],
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+    },
+    {
+      "type": "timeseries",
+      "title": "Longhorn volume capacity vs used",
+      "targets": [{"expr": "longhorn_volume_capacity_bytes", "legendFormat": "Capacity"}, {"expr": "longhorn_volume_actual_size_bytes", "legendFormat": "Used"}],
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+    },
+    {
+      "type": "stat",
+      "title": "OpenEBS LocalPV volumes count",
+      "targets": [{"expr": "count(kube_persistentvolume_info{storageclass='openebs-local-nvme'})"}],
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 8}
+    },
+    {
+      "type": "timeseries",
+      "title": "MinIO bucket sizes",
+      "targets": [{"expr": "minio_bucket_usage_object_total", "legendFormat": "{{bucket}}"}],
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 8}
+    },
+    {
+      "type": "table",
+      "title": "Recent Longhorn backups",
+      "targets": [{"expr": "longhorn_backup_state", "format": "table"}],
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 8}
+    }
+  ],
+  "schemaVersion": 16
+}
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 472
+    ingress:
+      enabled: false

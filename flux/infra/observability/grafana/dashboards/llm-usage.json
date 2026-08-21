@@ -1,0 +1,37 @@
+{
+  "title": "Sovereign AI Platform - LLM Usage",
+  "uid": "sovereign-llm-usage",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Ollama request rate (req/min) by model",
+      "targets": [{"expr": "sum(rate(ollama_request_total[1m])) by (model)", "legendFormat": "{{model}}"}],
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+    },
+    {
+      "type": "timeseries",
+      "title": "Ollama response latency p50/p95",
+      "targets": [{"expr": "histogram_quantile(0.95, sum(rate(ollama_request_duration_seconds_bucket[5m])) by (le, model))", "legendFormat": "p95 {{model}}"}],
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+    },
+    {
+      "type": "stat",
+      "title": "Total LLM calls (last 24h)",
+      "targets": [{"expr": "sum(increase(ollama_request_total[24h]))"}],
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 8}
+    },
+    {
+      "type": "timeseries",
+      "title": "Ollama replica count (from KEDA scaling)",
+      "targets": [{"expr": "sum(kube_deployment_status_replicas{deployment='ollama'})", "legendFormat": "Replicas"}],
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 8}
+    },
+    {
+      "type": "timeseries",
+      "title": "Token usage estimate (from LangFuse metrics if available)",
+      "targets": [{"expr": "sum(rate(langfuse_token_usage_total[5m])) by (model)", "legendFormat": "{{model}}"}],
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 8}
+    }
+  ],
+  "schemaVersion": 16
+}

@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - flux-system/
+  - ../../infra/metallb/
+  - ../../infra/ingress/traefik/
+  - ../../infra/ingress/nginx/
+  - ../../infra/cert-manager/
+  - ../../infra/storage/longhorn/
+  - ../../infra/storage/openebs/
+  - ../../infra/keda/
+  - ../../infra/observability/
