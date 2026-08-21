@@ -14,7 +14,7 @@ echo -e "${YELLOW}2. Recording START_TIME...${NC}"
 START_TIME=$(date +%s)
 
 echo -e "${YELLOW}3. Scaling Postgres StatefulSet to 0...${NC}"
-kubectl scale sts -n ai-data postgresql --replicas=0
+kubectl scale sts -n ai-data postgres-postgresql --replicas=0
 kubectl wait --for=delete pod -n ai-data -l app.kubernetes.io/name=postgresql --timeout=120s
 
 echo -e "${YELLOW}4. Deleting Postgres PVC...${NC}"
@@ -40,7 +40,7 @@ kubectl wait --for=condition=complete job -n ai-data pg-restore --timeout=120s
 kubectl delete job -n ai-data pg-restore
 
 echo -e "${YELLOW}7. Scaling Postgres back to 1...${NC}"
-kubectl scale sts -n ai-data postgresql --replicas=1
+kubectl scale sts -n ai-data postgres-postgresql --replicas=1
 
 echo -e "${YELLOW}8. Waiting for Postgres to be ready...${NC}"
 kubectl wait --for=condition=ready pod -n ai-data -l app.kubernetes.io/name=postgresql --timeout=300s
@@ -50,7 +50,7 @@ END_TIME=$(date +%s)
 TTR=$((END_TIME - START_TIME))
 
 echo -e "${YELLOW}10. Running connectivity check...${NC}"
-kubectl exec -n ai-data postgresql-0 -- psql -U postgres -d postgres -c 'SELECT 1;' || STATUS="FAIL"
+kubectl exec -n ai-data postgres-postgresql-0 -- psql -U postgres -d postgres -c 'SELECT 1;' || STATUS="FAIL"
 STATUS=${STATUS:-PASS}
 
 echo -e "${GREEN}11. Results:${NC}"

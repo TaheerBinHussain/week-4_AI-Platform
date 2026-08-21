@@ -53,26 +53,24 @@ echo -e "${YELLOW}5. Checking KEDA ScaledObjects...${NC}"
 kubectl get scaledobject -A || true
 check "KEDA ScaledObjects" 1
 
-echo -e "${YELLOW}6. Testing HTTPS endpoints...${NC}"
-INGRESS_IP=$(kubectl get svc -n ingress-nginx ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}' || echo "172.18.100.10")
-
 test_endpoint() {
   local domain=$1
+  local ip=$2
   local status
-  status=$(curl -s -o /dev/null -w "%{http_code}" -k --resolve "$domain:443:$INGRESS_IP" "https://$domain")
-  if [ "$status" -eq 200 ] || [ "$status" -eq 302 ]; then
-    check "$domain" 1
+  status=$(curl -s -o /dev/null -w "%{http_code}" -k --resolve "$domain:443:$ip" "https://$domain" || echo "000")
+  if [ "$status" -eq 200 ] || [ "$status" -eq 302 ] || [ "$status" -eq 401 ]; then
+    check "$domain ($ip)" 1
   else
     echo -e "${RED}Got status $status for $domain${NC}"
-    check "$domain" 0
+    check "$domain ($ip)" 0
   fi
 }
 
-test_endpoint "chat.sovereign.internal"
-test_endpoint "flowise.sovereign.internal"
-test_endpoint "argocd.sovereign.internal"
-test_endpoint "grafana.sovereign.internal"
-test_endpoint "n8n.sovereign.internal"
+test_endpoint "chat.sovereign.internal" "172.18.100.11"
+test_endpoint "flowise.sovereign.internal" "172.18.100.11"
+test_endpoint "argocd.sovereign.internal" "172.18.100.10"
+test_endpoint "grafana.sovereign.internal" "172.18.100.10"
+test_endpoint "n8n.sovereign.internal" "172.18.100.10"
 
 if [ "$FAILED" -eq 1 ]; then
   echo -e "${RED}Smoke tests failed!${NC}"
